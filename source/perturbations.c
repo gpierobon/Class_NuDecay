@@ -25,6 +25,7 @@
  */
 
 #include "perturbations.h"
+#include <gsl/gsl_sf_gamma.h> // NEW: for curlyF we are computing the incomplete gamma function
 
 
 /**
@@ -8965,8 +8966,8 @@ int perturbations_derivs(double tau,
       capY = ppt->capY; // neutrino decay rate including mass dependent terms
       
       if (capX > 0.0){
-         curlyF = 2.*a*capX-log(a*capX)-1./2.-0.57721;
-         //curlyF = 1./2.*exp(-a*capX)*(-1+a*capX-exp(a*capX)*(pow(a*capX,2)*-2.)*gamma_p(0.0,a*capX)) //Needs boost library 
+         //curlyF = 2.*a*capX-log(a*capX)-1./2.-0.57721; // Small x approximation (OLD)
+         curlyF = 1./2.*exp(-a*capX)*(-1+a*capX-exp(a*capX)*(pow(a*capX,2)*-2.)*gsl_sf_gamma_inc(0.0,a*capX)) // Full result 
       }
       else { curlyF=0.; }   
          
