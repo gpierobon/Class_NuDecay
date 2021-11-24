@@ -8967,7 +8967,7 @@ int perturbations_derivs(double tau,
       
       if (capX > 0.0){
          //curlyF = 2.*a*capX-log(a*capX)-1./2.-0.57721; // Small x approximation (OLD)
-         curlyF = 1./2.*exp(-a*capX)*(-1+a*capX-exp(a*capX)*(pow(a*capX,2)*-2.)*gsl_sf_gamma_inc(0.0,a*capX)) // Full result 
+         curlyF = 1./2.*exp(-a*capX)*(-1+a*capX-exp(a*capX)*(pow(a*capX,2)*-2.)*gsl_sf_gamma_inc(0.0,a*capX)); // Full result 
       }
       else { curlyF=0.; }   
          
