@@ -25,7 +25,7 @@
  */
 
 #include "perturbations.h"
-#include <gsl/gsl_sf_gamma.h> // NEW: for curlyF we are computing the incomplete gamma function
+//#include <gsl/gsl_sf_gamma.h> // NEW: for curlyF we are computing the incomplete gamma function
 
 
 /**
@@ -8963,11 +8963,28 @@ int perturbations_derivs(double tau,
       
       /* NEW: Relativistic neutrino decay parameters: */   
       capX = ppt->capX; // mother neutrino mass devided by neutrino temperature
-      capY = ppt->capY; // neutrino decay rate including mass dependent terms
+      capY = ppt->capY; // neutrino decay rate including mass dependent terms and phase space factor 
       
       if (capX > 0.0){
-         //curlyF = 2.*a*capX-log(a*capX)-1./2.-0.57721; // Small x approximation (OLD)
-         curlyF = 1./2.*exp(-a*capX)*(-1+a*capX-exp(a*capX)*(pow(a*capX,2)*-2.)*gsl_sf_gamma_inc(0.0,a*capX)); // Full result 
+         
+         // Smooth function with rigth behaviour at small x and large x
+  curlyF = exp(-pow(a*capX,4)/16) * (- 1./2. + 2.*a*capX + (0.57721+log(a*capX))*(pow(a*capX,2)/2-1) - pow(a*capX,2) - pow(a*capX,3)/9 + 
+           pow(a*capX,4)/96 - pow(a*capX,5)/900 + pow(a*capX,6)/8640 - pow(a*capX,7)/88200 + pow(a*capX,8)/967680) +
+           (1 - exp(-pow(a*capX,4)/16)) * 0.416667*exp(-a*capX)/pow(a*capX,1.5);
+         
+         /* Other options
+         
+         - Small x expansion to 8th order:
+          
+           curlyF = - 1./2. + 2.*a*capX + (0.57721+log(a*capX))*(pow(a*capX,2)/2-1) - pow(a*capX,2) - pow(a*capX,3)/9
+                  + pow(a*capX,4)/96 - pow(a*capX,5)/900 + pow(a*capX,6)/8640 - pow(a*capX,7)/88200 + pow(a*capX,8)/967680; 
+                     
+         - Full result with incomplete gamma function (needs gsl):
+         
+           curlyF = 1./2.*exp(-a*capX)*(-1+a*capX-exp(a*capX)*(pow(a*capX,2)*-2.)*gsl_sf_gamma_inc(0.0,a*capX)); 
+          
+          */
+
       }
       else { curlyF=0.; }   
          
@@ -8995,12 +9012,14 @@ int perturbations_derivs(double tau,
                  // non-standard term, non-zero if cvis2_ur not 1/3
                  -(1.-ppt->three_cvis2_ur)*(8./15.*(y[pv->index_pt_theta_ur]+metric_shear)))
                  -pow(a,6)*capY*curlyF*y[pv->index_pt_shear_ur]; /* NEW: Relativistic neutrino decay */
+                 //-pow(a,3)*pow(1073,3)*pow(10,6); // Escudero et al.
 
           /** - -----> exact ur l=3 */
           l = 3;
           dy[pv->index_pt_l3_ur] = k/(2.*l+1.)*
             (l*2.*s_l[l]*s_l[2]*y[pv->index_pt_shear_ur]-(l+1.)*s_l[l+1]*y[pv->index_pt_l3_ur+1])
             -27./4.*pow(a,6)*capY*curlyF*y[pv->index_pt_l3_ur]; /* NEW: Relativistic neutrino decay */
+            //-pow(a,3)*pow(1073,3)*pow(10,6); // Escudero et al.
 
           /** - -----> exact ur l>3 */
           for (l = 4; l < pv->l_max_ur; l++) {
@@ -9009,7 +9028,8 @@ int perturbations_derivs(double tau,
           
             dy[pv->index_pt_delta_ur+l] = k/(2.*l+1)*
               (l*s_l[l]*y[pv->index_pt_delta_ur+l-1]-(l+1.)*s_l[l+1]*y[pv->index_pt_delta_ur+l+1])
-              -alpha_l*pow(a,6)*capY*y[pv->index_pt_delta_ur+l];  /* NEW: Relativistic neutrino decay */              
+              -alpha_l*pow(a,6)*capY*curlyF*y[pv->index_pt_delta_ur+l];  /* NEW: Relativistic neutrino decay */
+              //-pow(a,3)*pow(1073,3)*pow(10,6); // Escudero et al.              
           }
 
           /** - -----> exact ur lmax_ur */
@@ -9017,7 +9037,8 @@ int perturbations_derivs(double tau,
           alpha_l=1./32.*(3.*l*l*l*l+2.*l*l*l-11.*l*l+6.*l);
           dy[pv->index_pt_delta_ur+l] =
             k*(s_l[l]*y[pv->index_pt_delta_ur+l-1]-(1.+l)*cotKgen*y[pv->index_pt_delta_ur+l])
-            -alpha_l*pow(a,6)*capY*y[pv->index_pt_delta_ur+l]; /* NEW: Relativistic neutrino decay */
+            -alpha_l*pow(a,6)*capY*curlyF*y[pv->index_pt_delta_ur+l]; /* NEW: Relativistic neutrino decay */
+           // -pow(a,3)*pow(1073,3)*pow(10,6); // Escudero et al.
 
         }
 

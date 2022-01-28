@@ -2302,7 +2302,7 @@ int input_read_parameters_species(struct file_content * pfc,
     class_call(parser_read_double(pfc,"capX",&param2,&flag2,errmsg),				// unitless
              errmsg,
              errmsg);         
-    if (flag1 == _TRUE_){
+    if (flag1 == _TRUE_){     
       ppt->capY = param1*(1e9*365*24*3600)/1.02e-3*(1.e3 / _c_);                          // [Mpc]
     }             
     if (flag2 == _TRUE_){

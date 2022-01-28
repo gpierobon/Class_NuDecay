@@ -4,7 +4,7 @@
 #define __PERTURBATIONS__
 
 #include "thermodynamics.h"
-#include <gsl/gsl_sf_gamma.h> // NEW: for curlyF we are computing the incomplete gamma function
+//#include <gsl/gsl_sf_gamma.h> // NEW: for curlyF we are computing the incomplete gamma function
 
 #define _scalars_ ((ppt->has_scalars == _TRUE_) && (index_md == ppt->index_md_scalars))
 #define _vectors_ ((ppt->has_vectors == _TRUE_) && (index_md == ppt->index_md_vectors))
